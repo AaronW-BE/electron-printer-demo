@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <style>
+        .printer-list {
+            height: 400px;
+            overflow-y: scroll;
+        }
+
+        .loading-tips {
+            text-align: center;
+            padding-top: 20px;
+            color: #787878;
+            display: none;
+        }
+        .printer-list .printer-item{
+            padding: 5px;
+        }
+        .printer-list .printer-item.default-printer {
+            text-decoration: underline;
+        }
+
+        .loading-tips.show {
+            display: block;
+        }
+
+        .printer-item.hover{
+            background: #787878;
+            color: #ffffff;
+        }
+        .printer-item.click {
+            color: #787878;
+            background: aquamarine;
+        }
+    </style>
+</head>
+<body>
+
+    <button onclick="getPrinters()">获取打印机列表</button>
+    <div class="printer-list">
+        <div class="loading-tips">加载中...</div>
+    </div>
+
+    <button onclick="print()">打印</button>
+<script>
+    const ipcRenderer = require("electron").ipcRenderer;
+
+    let printerList = [];
+    let selectedPrinterName;
+    ipcRenderer.on('getPrinterList', (event, args) => {
+        if (args.length) {
+            document.querySelector(".loading-tips").classList.remove('show');
+            printerList = args;
+
+            if (document.querySelectorAll(".printer-list .printer-item")) {
+                document.querySelectorAll(".printer-list .printer-item").forEach(item => {
+                    item.remove();
+                });
+            }
+            for (const printer of args) {
+                console.log(printer)
+                let div = document.createElement("div");
+                div.classList.add('printer-item')
+                div.innerHTML = printer.name + (printer.isDefault ? '（默认）': '');
+
+                div.addEventListener('mouseover', function () {
+                    this.classList.add('hover');
+                })
+                div.addEventListener('mouseout', function () {
+                    this.classList.remove('hover');
+                })
+                div.addEventListener('mousedown', function () {
+                    this.classList.add('click')
+                    selectedPrinterName = printer.name;
+                    console.log('selected printer name', selectedPrinterName)
+                })
+                div.addEventListener('mouseup', function () {
+                    this.classList.remove('click');
+                })
+                if (printer.isDefault) {
+                    div.classList.add('default-printer')
+                }
+                document.querySelector(".printer-list").appendChild(div);
+            }
+        }
+    });
+
+    function getPrinters() {
+        setTimeout(() => {
+            ipcRenderer.send("getPrinterList");
+        }, 500);
+        document.querySelector(".loading-tips").classList.add('show');
+    }
+
+    function print() {
+        if (selectedPrinterName) {
+            ipcRenderer.send('exec-printing', {
+                silent: true,
+                deviceName: selectedPrinterName,
+            });
+        } else {
+            alert('请先选择打印机');
+        }
+    }
+</script>
+</body>
+</html>
