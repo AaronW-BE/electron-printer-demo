@@ -44,7 +44,12 @@
         <div class="loading-tips">加载中...</div>
     </div>
 
-    <button onclick="print()">打印</button>
+    <div>
+        <textarea name="" id="text" style="width: 100%"></textarea>
+    </div>
+
+<!--    <button onclick="print()">打印</button>-->
+    <button onclick="printPreview()">Print</button>
 <script>
     const ipcRenderer = require("electron").ipcRenderer;
 
@@ -95,13 +100,28 @@
         document.querySelector(".loading-tips").classList.add('show');
     }
 
-    function print() {
+    // function print() {
+    //     if (selectedPrinterName) {
+    //         ipcRenderer.send('exec-printing', {
+    //             silent: true,
+    //             deviceName: selectedPrinterName,
+    //         });
+    //     } else {
+    //         alert('请先选择打印机');
+    //     }
+    // }
+
+    function printPreview() {
         if (selectedPrinterName) {
-            ipcRenderer.send('exec-printing', {
+            let text = document.getElementById('text').value;
+            console.log(text)
+
+            ipcRenderer.send('print-preview', {
                 silent: true,
                 deviceName: selectedPrinterName,
-            });
-        } else {
+                data: text
+            })
+        }else {
             alert('请先选择打印机');
         }
     }

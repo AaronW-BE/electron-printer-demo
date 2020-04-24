@@ -12,6 +12,17 @@ function createWindow() {
             nodeIntegration: true
         }
     })
+
+    let printPreviewWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: true
+        }
+    });
+    printPreviewWindow.hide();
+    printPreviewWindow.loadFile("./src/renderer/print_preview.html");
+    printPreviewWindow.webContents.openDevTools();
+
+    // printPreviewWindow.hide();
     win.loadFile("./src/renderer/index.html");
     win.webContents.openDevTools()
 
@@ -21,10 +32,16 @@ function createWindow() {
     });
 
     ipcMain.on('exec-printing', (event, args) => {
-        win.webContents.print(args, (success, errorType) => {
+        printPreviewWindow.webContents.print(args, (success, errorType) => {
             if (!success) console.log(errorType)
         });
     });
+
+    ipcMain.on('print-preview', ((event, args) => {
+        // printPreviewWindow.show();
+        // win.close();
+        printPreviewWindow.webContents.send('print-preview', args);
+    }));
 }
 
 app.whenReady().then(createWindow);
