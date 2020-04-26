@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Status</title>
+</head>
+<body>
+
+<script>
+    // const { ipcRenderer } = require('electron')
+
+    console.log(navigator.onLine);
+    window.addEventListener('online', function () {
+        console.log('online')
+    });
+
+    window.addEventListener('offline', function () {
+        let option = {
+            title: "断网了!",
+            body: "尝尝10亿伏特!还敢上网不?(炮姐如是说!)",
+        };
+        // 创建上线通知
+        new window.Notification(option.title, option);
+    });
+</script>
+</body>
+</html>

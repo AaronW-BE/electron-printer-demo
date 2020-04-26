@@ -1,26 +1,39 @@
 const {
     app,
     BrowserWindow,
+    Menu,
+    MenuItem,
     ipcMain
 } = require('electron');
 
+let win;
 function createWindow() {
-    let win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 800,
         height: 600,
+        show: false,
         webPreferences: {
             nodeIntegration: true
         }
     })
+    win.once('ready-to-show', () => {
+        console.log('ready to show')
+        setTimeout(() => {
+            splashWindow.destroy()
+            splashWindow = null;
 
-    let printPreviewWindow = new BrowserWindow({
-        webPreferences: {
-            nodeIntegration: true
-        }
+            win.show();
+        }, 3000);
     });
-    printPreviewWindow.hide();
-    printPreviewWindow.loadFile("./src/renderer/print_preview.html");
-    printPreviewWindow.webContents.openDevTools();
+
+    // let printPreviewWindow = new BrowserWindow({
+    //     webPreferences: {
+    //         nodeIntegration: true
+    //     }
+    // });
+    // printPreviewWindow.hide();
+    // printPreviewWindow.loadFile("./src/renderer/print_preview.html");
+    // printPreviewWindow.webContents.openDevTools();
 
     // printPreviewWindow.hide();
     win.loadFile("./src/renderer/index.html");
@@ -32,19 +45,39 @@ function createWindow() {
     });
 
     ipcMain.on('exec-printing', (event, args) => {
-        printPreviewWindow.webContents.print(args, (success, errorType) => {
-            if (!success) console.log(errorType)
-        });
+        // printPreviewWindow.webContents.print(args, (success, errorType) => {
+        //     if (!success) console.log(errorType)
+        // });
     });
 
     ipcMain.on('print-preview', ((event, args) => {
         // printPreviewWindow.show();
         // win.close();
-        printPreviewWindow.webContents.send('print-preview', args);
+        // printPreviewWindow.webContents.send('print-preview', args);
     }));
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+    createWindow();
+    splashWindow = new BrowserWindow({
+        titleBarStyle: "hidden",
+        frame: false,
+        width: 500,
+        height: 350,
+        alwaysOnTop: true,
+        // transparent: true
+    });
+    splashWindow.loadFile('./src/renderer/splash.html')
+    splashWindow.show();
+});
+
+// let onlineStatusWindow;
+// app.whenReady().then(() => {
+//     onlineStatusWindow = new BrowserWindow({ width: 500, height: 500, show: true, webPreferences: { nodeIntegration: true } })
+//     onlineStatusWindow.loadURL(`file://${__dirname}/src/renderer/online-status.html`)
+// });
+
+let splashWindow;
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
