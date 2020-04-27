@@ -2,10 +2,11 @@
   "name": "electron-demo",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "./src/run.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "start-inspect": "electron . --inspect"
   },
   "author": "",
   "license": "ISC",

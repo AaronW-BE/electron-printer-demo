@@ -19,8 +19,8 @@ function createWindow() {
     win.once('ready-to-show', () => {
         console.log('ready to show')
         setTimeout(() => {
-            splashWindow.destroy()
-            splashWindow = null;
+            // splashWindow.destroy()
+            // splashWindow = null;
 
             win.show();
         }, 3000);
@@ -64,11 +64,10 @@ app.whenReady().then(() => {
         frame: false,
         width: 500,
         height: 350,
-        alwaysOnTop: true,
+        // alwaysOnTop: true,
         // transparent: true
     });
     splashWindow.loadFile('./src/renderer/splash.html')
-    splashWindow.show();
 });
 
 // let onlineStatusWindow;
