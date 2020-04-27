@@ -3,24 +3,22 @@ const {
 } = require('electron');
 
 class WindowManager {
-    constructor() {
-        this.windowStack = [];
-    }
+    #windowStack = []
 
     createWindow(options, fn) {
         let win = new BrowserWindow(options);
         typeof fn === "function" && fn(win);
-        this.windowStack.push(win);
+        this.#windowStack.push(win);
         return win;
     }
 
     getTopWindow() {
-        return this.windowStack[this.windowStack.length - 1];
+        return this.#windowStack[this.#windowStack.length - 1];
     }
 
     getActivateWindows() {
         let wins = [];
-        for (let win of this.windowStack) {
+        for (let win of this.#windowStack) {
             if (win.isVisible()) {
                 wins.push(win)
             }
@@ -29,12 +27,12 @@ class WindowManager {
     }
 
     destroyWindow(window) {
-        for (let i = 0; i < this.windowStack.length; i++) {
-            if (this.windowStack[i] === window) {
+        for (let i = 0; i < this.#windowStack.length; i++) {
+            if (this.#windowStack[i] === window) {
                 window.close();
                 window.destroy();
                 window = null;
-                this.windowStack.splice(i, 1);
+                this.#windowStack.splice(i, 1);
             }
         }
     }
