@@ -2,9 +2,18 @@ const {
     BrowserWindow,
 } = require('electron');
 
+/**
+ * Global window manager for application
+ */
 class WindowManager {
     #windowStack = []
 
+    /**
+     * Create a window ant append to window stack
+     * @param options
+     * @param fn
+     * @returns {Electron.BrowserWindow}
+     */
     createWindow(options, fn) {
         let win = new BrowserWindow(options);
         typeof fn === "function" && fn(win);
@@ -12,10 +21,18 @@ class WindowManager {
         return win;
     }
 
+    /**
+     * Get last appended window
+     * @returns {*}
+     */
     getTopWindow() {
         return this.#windowStack[this.#windowStack.length - 1];
     }
 
+    /**
+     * get Activated windows array
+     * @returns {[]}
+     */
     getActivateWindows() {
         let wins = [];
         for (let win of this.#windowStack) {
@@ -26,6 +43,10 @@ class WindowManager {
         return wins;
     }
 
+    /**
+     * Close specific window and destroy it
+     * @param window
+     */
     destroyWindow(window) {
         for (let i = 0; i < this.#windowStack.length; i++) {
             if (this.#windowStack[i] === window) {
