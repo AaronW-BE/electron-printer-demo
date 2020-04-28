@@ -8,26 +8,43 @@ const {
 const path = require('path');
 const windowManager = require('./core');
 
-
 let tray;
 
-app.whenReady().then(() => {
+let mainWindow;
 
+function setTray() {
     tray = new Tray(path.join(__dirname, "assets", "icon", "app.ico"));
     const contextMenu = Menu.buildFromTemplate([
-        { label: '打开', type: 'normal' },
-        { label: '退出', type: 'normal', click: (event, focusedWindow, focusedWebContents) => {
-                app.quit();
-        }},
+        { label: 'Open', type: 'normal', click: () => {
+                if (mainWindow && !mainWindow.isVisible()) {
+                    mainWindow.show();
+                }
+            }},
+        { label: 'Quit', type: 'normal', click: (event, focusedWindow, focusedWebContents) => {
+                app.exit();
+            }},
     ])
+    tray.on('double-click', () => {
+        mainWindow.show();
+    });
     tray.setToolTip('This is my application.')
-    tray.setContextMenu(contextMenu)
+    tray.setContextMenu(contextMenu);
+}
+
+function hideTray() {
+    if (tray) {
+        tray.destroy();
+    }
+}
+
+app.whenReady().then(() => {
 
     let splash = windowManager.createWindow({
         titleBarStyle: "hidden",
         frame: false,
         width: 500,
         height: 350,
+        center: true,
         show: false,
         alwaysOnTop: true,
         webPreferences: {
@@ -38,6 +55,7 @@ app.whenReady().then(() => {
         window.once('ready-to-show', () => {
             setTimeout(() => {
                 window.show();
+                window.setProgressBar(2);
             }, 500);
         });
     })
@@ -50,13 +68,25 @@ app.whenReady().then(() => {
             nodeIntegration: true
         }
     };
-    windowManager.createWindow(options, function (win) {
+    mainWindow = windowManager.createWindow(options, function (win) {
         win.loadFile(path.join(__dirname, 'renderer/index.html')).catch((e) => console.log(e))
+
+        win.on('show', () => {
+            hideTray();
+        });
         win.once('ready-to-show', function () {
             setTimeout(() => {
                 windowManager.destroyWindow(splash);
+                // win.maximize();
+                // win.setResizable(false);
                 win.show();
             }, 3000);
+        });
+
+        win.on('close', (e) => {
+            setTray();
+            e.preventDefault();
+            win.hide();
         });
     });
 });
