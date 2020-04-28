@@ -1,11 +1,28 @@
 const {
     app,
-    ipcMain
+    Tray,
+    Menu,
+    ipcMain,
+    shell
 } = require('electron');
 const path = require('path');
 const windowManager = require('./core');
 
+
+let tray;
+
 app.whenReady().then(() => {
+
+    tray = new Tray(path.join(__dirname, "assets", "icon", "app.ico"));
+    const contextMenu = Menu.buildFromTemplate([
+        { label: '打开', type: 'normal' },
+        { label: '退出', type: 'normal', click: (event, focusedWindow, focusedWebContents) => {
+                app.quit();
+        }},
+    ])
+    tray.setToolTip('This is my application.')
+    tray.setContextMenu(contextMenu)
+
     let splash = windowManager.createWindow({
         titleBarStyle: "hidden",
         frame: false,
